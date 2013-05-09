@@ -6,19 +6,24 @@ public class Grid {
 	public static final int LOSS = 3;
 
 	public static final int MINE = -1;
-	public static final int SHOWN = -2;
-	public static final int HIDDEN = -3;
-	public static final int QUESTION = -4;
-	public static final int DANGER = -5;
+	
+	public static final int HIDDEN = 0;
+	public static final int QUESTION = -1;
+	public static final int DANGER = -2;
+	public static final int SHOWN = -3;
+
+	public static final int TILE = 9;
 
 	protected int status;
 	protected int[][] grid;
 	protected int[][] markedGrid;
+	protected int[][] gameGrid;
 	protected int mines;
 
 	public Grid(int rows, int columns, int mines) {
 		this.grid = new int[rows][columns];
 		this.markedGrid = new int[rows][columns];
+		this.gameGrid = new int[rows][columns];
 		this.mines = mines;
 
 		this.status = PLAY;
@@ -65,6 +70,13 @@ public class Grid {
 				}
 			}
 		}
+
+		// Tile the transferGrid
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+				gameGrid[r][c] = TILE;
+			}
+		}	
 	}
 
 	public boolean valid(int r, int c) {
@@ -88,6 +100,7 @@ public class Grid {
 			return;
 		} else if (grid[r][c] == 0) {
 			markedGrid[r][c] = SHOWN;
+			gameGrid[r][c] = grid[r][c];
 			click(r + 1, c);
 			click(r - 1, c);
 			click(r, c + 1);
@@ -101,11 +114,13 @@ public class Grid {
 				for (int j = 0; j < cols; j++) {
 					if (grid[i][j] == MINE) {
 						markedGrid[i][j] = SHOWN;
+						gameGrid[r][c] = grid[r][c];
 					}
 				}
 			}
 		} else {
 			markedGrid[r][c] = SHOWN;
+			gameGrid[r][c] = grid[r][c];
 		}
 	}
 
@@ -117,6 +132,10 @@ public class Grid {
 		} else {
 			markedGrid[r][c]++;
 		}
+	}
+
+	public int[][] grid() {
+		return gameGrid;
 	}
 
 	public boolean inPlay() {
@@ -135,6 +154,24 @@ public class Grid {
 		return status == LOSS;
 	}
 
+	private String toGameString() {
+		StringBuilder out = new StringBuilder();
+		int rows = rows(), cols = columns();
+
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+				if (gameGrid[r][c] == TILE) {
+					out.append("   ");
+				} else {
+					out.append(" " + grid[r][c] + " ");
+				}
+			}
+			out.append("\n");
+		}		
+
+		return out.toString();
+	}
+
 	public String toString() {
 		StringBuilder out = new StringBuilder();
 		int rows = rows(), cols = columns();
@@ -151,9 +188,5 @@ public class Grid {
 		}
 
 		return out.toString();
-	}	
-
-	public static void main(String args[]) {
-		System.out.println(new Grid(10, 10, 15));
 	}
 }
