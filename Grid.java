@@ -22,6 +22,7 @@ public class Grid {
 		this.mines = mines;
 
 		this.status = PLAY;
+		initGrid();
 	}
 
 	private void initGrid() { int rows = rows(), cols = columns();
@@ -37,7 +38,7 @@ public class Grid {
 
 		// Place Mines
 		for (i = 0; i < mines; i++) {
-			int rand = (int)(Math.random() * cells - i);
+			int rand = (int)(Math.random() * (cells - i));
 			int swap = cells - i - 1;
 			int row = rand / cols;
 			int col = rand % cols;
@@ -52,14 +53,14 @@ public class Grid {
 
 		// Go back to mines and add up surroudning cells
 		for (i = 0; i < mines; i++) {
-			int position = cells - i - 1;
+			int position = pos[cells - i - 1];
 			int row = position / cols;
 			int col = position % cols;
 
 			for (int r = -1; r <= 1; r++) {
 				for (int c = -1; c <= 1; c++) {
-					if (valid(r, c) && grid[r][c] != MINE) {
-						grid[r][c]++;
+					if (valid(row + r, col + c) && grid[row + r][col + c] != MINE) {
+						grid[row + r][col + c]++;
 					}
 				}
 			}
@@ -133,6 +134,24 @@ public class Grid {
 	public boolean isLost() {
 		return status == LOSS;
 	}
+
+	public String toString() {
+		StringBuilder out = new StringBuilder();
+		int rows = rows(), cols = columns();
+
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+				if (grid[r][c] == MINE) {
+					out.append(" * ");
+				} else {
+					out.append(" " + grid[r][c] + " ");
+				}
+			}
+			out.append("\n");
+		}
+
+		return out.toString();
+	}	
 
 	public static void main(String args[]) {
 		System.out.println(new Grid(10, 10, 15));
